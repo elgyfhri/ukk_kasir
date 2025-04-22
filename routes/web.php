@@ -20,10 +20,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/sales',[SalessController::class, 'index'])->name('sales');
     Route::get('/download/{id}', [DetailSalesController::class, 'downloadPDF'])->name('download');
     Route::get('/logout', [UserController::class, 'logout'])->name('logout');
-    Route::get('/exportexcel', [ProductsController::class, 'exportexcel'])->name('exportexcel');
+  
 });
 
-Route::middleware(['auth', 'is_admin'])->group(function () {
+
     Route::prefix('/product')->name('product.')->group(function () {
         Route::put('/edit-stock/{id}', [ProductsController::class, 'updateStock'])->name('stock');
         Route::get('/create', [ProductsController::class, 'create'])->name('create');
@@ -31,7 +31,8 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
         Route::delete('/{id}', [ProductsController::class, 'destroy'])->name('delete');
         Route::get('/edit/{id}', [ProductsController::class, 'edit'])->name('edit');
         Route::put('/edit/{id}', [ProductsController::class, 'update'])->name('update');
-       
+        Route::get('/exportexcel', [ProductsController::class, 'exportexcel'])->name('exportexcel');
+      
     });
 
     Route::prefix('/user')->name('user.')->group(function () {
@@ -41,10 +42,10 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
         Route::get('/edit/{id}', [UserController::class, 'edit'])->name('edit');
         Route::put('/update/{id}', [UserController::class, 'update'])->name('update');
         Route::delete('/{id}', [UserController::class, 'destroy'])->name('delete');
+        Route::get('/exportexcel', [UserController::class, 'export'])->name('export');
     });
-});
 
-Route::middleware(['auth', 'is_employee'])->group(function () {
+
     Route::prefix('/sales')->name('sales.')->group(function () {
         Route::get('/create',[SalessController::class, 'create'])->name('create');
         Route::post('/create/post',[SalessController::class, 'store'])->name('store');
@@ -53,8 +54,8 @@ Route::middleware(['auth', 'is_employee'])->group(function () {
         Route::get('/print/{id}',[DetailSalesController::class, 'show'])->name('print.show');
         Route::get('/create/member/{id}', [SalessController::class, 'createmember'])->name('create.member');
         Route::get('/exportexcel', [DetailSalesController::class, 'exportexcel'])->name('exportexcel');
+        
     });
-});
 
 
 

@@ -7,6 +7,8 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Exports\UsersExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -14,6 +16,12 @@ class UserController extends Controller
     public function loginpage()
     {
         return view('welcome');
+    }
+
+    
+    public function export()
+    {
+        return Excel::download(new UsersExport, 'data-user.xlsx');
     }
 
         public function login(Request $request){

@@ -94,20 +94,24 @@ class SalessController extends Controller
             // Akumulasi Point
             $point = floor($newPrice / 100);
             if ($existCustomer) {
-                // Jika customer sebelumnya sudah ada, maka update point
-                $existCustomer->update([
-                    'point' => $existCustomer->point + $point,
-                ]);
-                // Ambil ID customer
+                // Sebelum menambahkan point baru, pindahkan pending ke available
+                $existCustomer->available_point += $existCustomer->pending_point;
+                $existCustomer->pending_point = 0;
+            
+                // Tambahkan point baru ke pending
+                $existCustomer->pending_point += $point;
+                $existCustomer->save();
+            
                 $customer_id = $existCustomer->id;
-            } else {
-                // Jika customer baru, maka create customer baru
+            }
+             else {
+                // Jika customer baru
                 $existCustomer = customers::create([
                     'name' => "",
                     'no_hp' => $request->no_hp,
-                    'point' => $point,
+                    'available_point' => 0,
+                    'pending_point' => $point,
                 ]);
-                // Ambil ID customer baru
                 $customer_id = $existCustomer->id;
             }
             // Membuat data penjualan
@@ -118,9 +122,10 @@ class SalessController extends Controller
                 'total_return' => $newreturn,
                 'customer_id' => $customer_id,
                 'user_id' => Auth::id(),
-                'point' => floor($newPrice / 100),
-                'total_point' => 0,
+                'point' => $point, // ini yang didapat
+                'total_point' => $existCustomer->available_point, // yang bisa dipakai
             ]);
+            
             $detailSalesData = [];
 
             foreach ($request->shop as $shopItem) {

@@ -10,13 +10,13 @@
                     <div class="row justify-content-end mb-3">
                         <div class="col text-start">
                             <div class="row">
-                                @if (Auth::user()->role == 'employee')
+                                @if (Auth::user()->role == 'admin' || Auth::user()->role == 'employee')
                                 <div class="col-6">
                                     <a href="{{ route('sales.exportexcel') }}" class="btn btn-info">
                                         Export Penjualan (.xlsx)
                                     </a>
                                 </div>
-                                @endif
+                            @endif                            
                             </div>
                         </div>
                         @if (Auth::user()->role == 'employee')
@@ -53,8 +53,8 @@
                                         <td>{{ $sale->user->name ?? 'Pegawai Tidak Ada' }}</td>
                                         <td>
                                             <div class="d-flex justify-content-around">
-                                                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#lihat-{{$sale->id}}"><i class="mdi mdi-eye"></i></button>
-                                                <a href="{{ route('download', $sale->id) }}" class="btn btn-info"><i class="mdi mdi-download"></i></a>
+                                                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#lihat-{{$sale->id}}">Lihat</button>
+                                                <a href="{{ route('download', $sale->id) }}" class="btn btn-info">Unduh</a>
                                             </div>
                                         </td>
                                     </tr>

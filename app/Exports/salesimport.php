@@ -18,7 +18,7 @@ class salesimport implements FromCollection, WithHeadings, WithMapping
         if (Auth::user()->role == 'employee') {
             return saless::with('customer', 'user', 'detail_sales')->orderBy('id','desc')->get(); 
         }else{
-            redirect()->back();
+           return saless::with('customer', 'user', 'detail_sales')->orderBy('id','desc')->get();
         }
     }
     public function headings(): array
@@ -54,5 +54,5 @@ class salesimport implements FromCollection, WithHeadings, WithMapping
             $item->created_at,
         ];
     }
-
+    
 }

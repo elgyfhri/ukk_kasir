@@ -20,8 +20,11 @@
                         });
                     </script>
                     @endif
-
-                    <h4 class="card-title mb-0">Daftar Produk</h4>
+                    <div class="col-6">
+                        <a href="{{ route('product.exportexcel') }}" class="btn btn-info">
+                            Export Product (.xlsx)
+                        </a>
+                    </div>
 
                     @if (Session::get('error'))
                     <div class="alert alert-danger">
@@ -35,6 +38,7 @@
                                 <i class="mdi mdi-plus"></i>Tambah Data</button>
                         </a>
                     @endif
+                   
                 </div>
                 <div class="table-responsive">
                     <table class="table table-bordered">
@@ -60,17 +64,17 @@
                                 <td>{{ $product->stock }}</td>
                                 @if(Auth::user()->role === 'admin')
                                 <td>
-                                    <a href="{{ route('product.edit', $product->id) }}" class="btn btn-warning"><i class="mdi mdi-tooltip-edit"></i></a>
+                                    <a href="{{ route('product.edit', $product->id) }}" class="btn btn-warning">Edit</a>
 
                                     <!-- Tombol untuk membuka modal -->
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateStockModal{{ $product->id }}">
-                                        <i class="mdi mdi-update"></i>
+                                        Update Stock</i>
                                     </button>
 
                                     <form action="{{ route('product.delete', $product->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Yakin ingin menghapus produk ini?')"><i class="mdi mdi-delete"></i></button>
+                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Yakin ingin menghapus produk ini?')">Hapus</button>
                                     </form>
                                 </td>
                                 @endif

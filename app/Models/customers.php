@@ -18,7 +18,8 @@ class customers extends Model
     protected $fillable = [
         'name',
         'no_hp',
-        'point',
+        'available_point',
+    'pending_point',
     ];
     public function saless() 
     {

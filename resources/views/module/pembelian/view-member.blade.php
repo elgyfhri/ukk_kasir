@@ -42,7 +42,12 @@
                                                     </td>
                                                     <td class="tableitem">
                                                         <p class="itemtext">Rp.
-                                                            {{ number_format($item['product']['price'], '0', ',', '.') }}
+                                                            {{ number_format($item['product']['price'], 0, ',', '.') }}
+                                                        </p>
+                                                    </td>
+                                                    <td class="tableitem">
+                                                        <p class="itemtext">
+                                                            Rp. {{ number_format($item['amount'] * $item['product']['price'], 0, ',', '.') }}
                                                         </p>
                                                     </td>
                                                 </tr>
@@ -54,7 +59,7 @@
                                                     <h4>Total Harga</h4>
                                                 </td>
                                                 <td>
-                                                    <h4>Rp. {{ number_format($sale['total_price'], '0', ',', '.') }}</h4>
+                                                    <h4>Rp. {{ number_format($sale['total_price'], 0, ',', '.') }}</h4>
                                                 </td>
                                             </tr>
                                             <tr class="tabletitle">
@@ -64,7 +69,7 @@
                                                     <h4>Total Bayar</h4>
                                                 </td>
                                                 <td>
-                                                    <h4>Rp. {{ number_format($sale['total_pay'], '0', ',', '.') }}</h4>
+                                                    <h4>Rp. {{ number_format($sale['total_pay'], 0, ',', '.') }}</h4>
                                                 </td>
                                             </tr>
                                         </table>
@@ -79,10 +84,13 @@
                                             <input type="text" name="name" id="name" class="form-control"
                                                 required value="{{ $sale['customer']['name'] }}">
                                         </div>
+                                        <div class="form-group mt-2">
+                                            <label class="form-label">Pending Point</label>
+                                            <input type="text" class="form-control" value="{{ $sale['customer']['pending_point'] ?? 0 }}" disabled>
+                                        </div>
                                         <div class="form-group">
-                                            <label for="poin" class="form-label">Poin</label>
-                                            <input type="text" name="point" id="poin"
-                                                value="{{ $sale['customer']['point'] }}" disabled class="form-control">
+                                            <label class="form-label">Available Point</label>
+                                            <input type="text" class="form-control" value="{{ $sale['customer']['available_point'] ?? 0 }}" disabled>
                                         </div>
                                         <div class="form-check ms-4">
                                             <input class="form-check-input" type="checkbox" value="Ya" id="check2"
@@ -90,9 +98,14 @@
                                             <label class="form-check-label" for="check2">
                                                 Gunakan poin
                                             </label>
-                                            <small
-                                                class="text-danger">{{ $notFirst ? '' : 'Poin tidak dapat digunakan pada pembelanjaan pertama.' }}</small>
+                                            <small class="text-danger">
+                                                {{ $notFirst ? '' : 'Poin tidak dapat digunakan pada pembelanjaan pertama.' }}
+                                            </small>
                                         </div>
+                                        
+                                      
+                                        
+                                        
                                     </div>
                                     <div class="row text-end">
                                         <div class="col-md-12">

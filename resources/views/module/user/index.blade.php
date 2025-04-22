@@ -32,10 +32,17 @@
                         });
                     </script>
                     @endif
-                    <h4 class="card-title mb-0">Daftar List</h4>
-                    <a href="{{route('user.create')}}">
-                        <button type="button" class="btn btn-info mb-4">Tambah User</button>
-                    </a>
+                    
+                        <h4 class="card-title mb-0">Daftar List</h4>
+                        <div>
+                            <a href="{{ route('user.export') }}" class="btn btn-success mb-4">Export Excel</a>
+                         
+                            <a href="{{route('user.create')}}">
+                                <button type="button" class="btn btn-info mb-4">Tambah User</button>
+                            </a>
+                        </div>
+                    </div>
+                    
                 </div>
                 <div class="table-responsive">
                     <table class="table table-bordered">

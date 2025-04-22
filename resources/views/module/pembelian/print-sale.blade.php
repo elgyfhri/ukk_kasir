@@ -150,13 +150,17 @@
                                     <div class="invoice-price-row">
                                         <div class="sub-price">
                                             <small>POIN DIGUNAKAN</small>
-                                            <span
-                                                class="text-inverse">{{ $sale['total_point'] }}</span>
+                                                <span class="text-inverse">{{ $usedPoint ?? 0 }}</span>
+                                            
                                         </div>
                                         <div class="sub-price">
                                             <small>KASIR</small>
                                             <span class="text-inverse">{{ Auth::user()->name }}</span>
                                         </div>
+                                            <div class="sub-price">
+                                                <small>BAYAR</small>
+                                                <span class="text-inverse">Rp. {{ number_format($sale['total_pay'], 0, ',', '.') }}</span>
+                                            </div>
                                             <div class="sub-price">
                                                 <small>KEMBALIAN</small>
                                                 <span class="text-inverse">Rp. {{ number_format($sale['total_return'], '0', ',', '.') }}</span>
@@ -166,16 +170,16 @@
                                 <div class="invoice-price-right">
                                     <small>TOTAL</small>
                                     {{-- style="text-decoration: {{ $sale['point'] > 0 ? 'line-through' : 'none' }};" --}}
-                                    <span class="f-w-600" style="{{ $sale['total_point'] > 0 ? 'text-decoration: line-through;' : '' }}">
+                                    <span class="f-w-600" style="{{ $usedPoint > 0 ? 'text-decoration: line-through;' : '' }}">
                                         Rp. {{ number_format($sale['total_price'], 0, ',', '.') }}
                                     </span>
-                                    @if ($sale['total_point'] > 0)
+                                    @if ( $usedPoint > 0)
                                         <br>
                                         <span class="f-w-600">
-                                            Rp. {{ number_format($sale['total_price'] - $sale['total_point'], 0, ',', '.') }}
+                                            Rp. {{ number_format($sale['total_price'] -  $usedPoint, 0, ',', '.') }}
                                         </span>
                                     @endif
-                                                                        {{-- <br>
+                                    {{-- <br>
                                     @if ($sale['point'] > 0)
                                     <span class="f-w-600">Rp. {{ number_format($sale['total_price'], '0', ',', '.') }}</span>
                                     @endif --}}

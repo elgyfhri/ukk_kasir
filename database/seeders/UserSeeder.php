@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
                     'role' => 'admin'
                 ],
                 [
-                    'name' => 'petugas',
+                    'name' => 'user',
                     'email' => 'petugas@gmail.com',
                     'password' => Hash::make('123'),
                     'role' => 'employee'

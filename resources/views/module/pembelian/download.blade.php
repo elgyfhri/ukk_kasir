@@ -158,7 +158,7 @@
                                 <h2>Harga Setelah Poin</h2>
                             </td>
                             <td>
-                                <h2>Rp. {{ number_format($sale['total_point'], '0', ',', '.') }}</h2>
+                                <h2>Rp. {{ number_format($sale['total_price'] - $sale['total_point'], 0, ',', '.') }}</h2>
                             </td>
                         </tr>
                         <tr class="tabletitle">

@@ -22,80 +22,126 @@ class DetailSalesController extends Controller
      */
     public function index()
     {
-        $today = Carbon::today();
         $currentDate = Carbon::now()->toDateString();
-    
-        // Jumlah transaksi hari ini (dari detail_sales)
+
+        // Hitung jumlah transaksi hari ini
         $todaySalesCount = detail_sales::whereDate('created_at', $currentDate)->count();
-    
-        // Ambil data total penjualan per hari
+        
+        // Ambil seluruh data penjualan tanpa batasan bulan atau tahun
         $sales = detail_sales::selectRaw('DATE(created_at) AS date, COUNT(*) AS total')
             ->groupByRaw('DATE(created_at)')
             ->orderByRaw('DATE(created_at)')
             ->get();
-    
-        // Penjualan member & non-member dari tabel saless
-        $memberSales = Saless::whereNotNull('customer_id')
-            ->whereDate('created_at', $today)
-            ->count();
-    
-        $nonMemberSales = Saless::whereNull('customer_id')
-            ->whereDate('created_at', $today)
-            ->count();
-    
-        // Data chart line
+        
+        $detail_sales = detail_sales::with('saless', 'product')->get();
+        
+        // Ubah hasil query menjadi array terstruktur
         $labels = $sales->pluck('date')->map(fn($date) => Carbon::parse($date)->format('d M Y'))->toArray();
         $salesData = $sales->pluck('total')->toArray();
-    
-        // Data chart pie (produk)
+
         $productShell = detail_sales::with('product')
-            ->selectRaw('product_id, SUM(amount) as total_amount')
-            ->groupBy('product_id')
-            ->get();
+        ->selectRaw('product_id, SUM(amount) as total_amount')
+        ->groupBy('product_id')
+        ->get();
     
-        $labelspieChart = $productShell->map(fn($item) => $item->product->name . ' : ' . $item->total_amount)->toArray();
-        $salesDatapieChart = $productShell->map(fn($item) => $item->total_amount)->toArray();
-    
-        // Semua data dikirim ke view yang sama
-        return view('module.dashboard.index', compact(
-            'todaySalesCount',
-            'memberSales',
-            'nonMemberSales',
-            'labels',
-            'salesData',
-            'labelspieChart',
-            'salesDatapieChart'
-        ));
+        // Ambil nama produk sebagai label dan jumlah produk terjual sebagai data
+        $total = $productShell->sum('total_amount');
+
+        $labelspieChart = $productShell->map(function($item) use ($total) {
+            $percentage = $total > 0 ? ($item->total_amount / $total) * 100 : 0;
+            return $item->product->name . ' : ' . round($percentage, 2) . '%';
+        })->toArray();
+        
+        $salesDatapieChart = $productShell->map(function($item) use ($total) {
+            return $total > 0 ? round(($item->total_amount / $total) * 100, 2) : 0;
+        })->toArray();
+        
+        
+        return view('module.dashboard.index', compact('labels', 'salesData', 'detail_sales', 'todaySalesCount', 'productShell', 'labelspieChart', 'salesDatapieChart'));
+        
     }
 
-    public function show(Request $request, $id)
-    {
-        // Ambil sale berdasarkan id
-        $sale = saless::with('detail_sales.product')->findOrFail($id);
-        // check request apakah dia ngirim request poin yang artinya dia adalah member jika tidak ada maka dia non member
-        if($request->check_poin){
-            // Proses pengurangan point
-            $customer = customers::where('id', $request->customer_id)->first();
+
+   public function show(Request $request, $id)
+{
+    $sale = saless::with('detail_sales.product', 'customer')->findOrFail($id);
+    $customer = customers::find($request->customer_id);
+
+    $usedPoint = 0; // Default
+
+    if ($customer) {
+        // Update nama customer jika ada input 'name'
+        if ($request->filled('name')) {
+            $customer->name = $request->name;
+        }
+
+        // Jika checkbox 'Gunakan poin' dicentang
+        if ($request->check_poin && $customer->available_point > 0) {
+            $usedPoint = $customer->available_point;
+
             $sale->update([
-                'total_point' => $customer->point,
-                'total_pay' => $sale->total_pay - $customer->point,
-                'total_return' => $sale->total_return + $customer->point,
-                'total_discount' => $sale->total_price - $customer->point,
+                'total_pay' => $sale->total_pay - $usedPoint,
+                'total_return' => $sale->total_return + $usedPoint,
+                'total_discount' => $sale->total_price - $usedPoint,
             ]);
 
-            $customer->update([
-                'name' => $request->name ? $request->name : $customer->name,
-                'point' => 0
-            ]);
+            $customer->available_point = 0;
         }
-        if ($request->name) {
-            $customer = customers::where('id', $request->customer_id)->first();
-            $customer->update([
-                'name' => $request->name
-            ]);
-        }
-        return view('module.pembelian.print-sale', compact('sale'));
+
+        $customer->save();
     }
+
+    // Kirim juga nilai usedPoint ke view jika perlu
+    return view('module.pembelian.print-sale', compact('sale', 'usedPoint'));
+    
+}
+
+
+    
+    // public function show(Request $request, $id)
+    // {
+    //     $sale = saless::with('detail_sales.product', 'customer')->findOrFail($id);
+    //     $customer = customers::find($request->customer_id);
+    
+    //     if ($customer) {
+    //         // Update nama customer jika diubah
+    //         if ($request->filled('name')) {
+    //             $customer->name = $request->name;
+    //         }
+    
+    //         // Jika checkbox 'Gunakan poin' dicentang
+    //         if ($request->has('check_poin') && $request->check_poin === 'Ya') {
+    //             $usedPoint = $customer->available_point;
+    
+    //             // Update nilai transaksi
+    //             $sale->update([
+    //                 'total_pay' => $sale->total_pay - $usedPoint,
+    //                 'total_return' => $sale->total_return + $usedPoint,
+    //                 'total_discount' => $sale->total_price - $usedPoint,
+    //                 'total_point' => $usedPoint, // ⬅️ hanya isi di sini
+    //             ]);
+    
+    //             // Kurangi poin yang dipakai
+    //             $customer->available_point = 0;
+    //         } else {
+    //             // Jika poin tidak digunakan
+    //             $customer->available_point += $customer->pending_point;
+    //             $customer->pending_point = 0;
+    
+    //             // Jangan isi total_point!
+    //             $sale->update([
+    //                 'total_point' => 0,
+    //             ]);
+    //         }
+    
+    //         $customer->save();
+    //     }
+    
+    //     return view('module.pembelian.print-sale', compact('sale'));
+    // }
+
+    
+
 
     public function downloadPDF($id) {
         try {
@@ -113,9 +159,7 @@ class DetailSalesController extends Controller
 
     public function exportexcel()
     {
-        if (Auth::user()->role == 'employee') {
-            return FacadesExcel::download(new salesimport, 'Penjualan.xlsx');
-        }
+        return FacadesExcel::download(new salesimport, 'Penjualan.xlsx');
     }
     /**
      * Show the form for creating a new resource.

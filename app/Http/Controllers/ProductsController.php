@@ -8,12 +8,19 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel as FacadesExcel;
 use App\Exports\salesimport;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\productimport;
 
 class ProductsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+
+     public function exportProduk()
+{
+    return Excel::download(new productimport, 'data-produk.xlsx');
+}
     public function index()
     {
         // $products = products::all();
@@ -23,11 +30,10 @@ class ProductsController extends Controller
 
     public function exportexcel()
     {
-        if (Auth::user()->role == 'employee') {
-            return FacadesExcel::download(new salesimport, 'Penjualan.xlsx');
-        }
+        return FacadesExcel::download(new productimport, 'Product.xlsx');
     }
 
+   
     /**
      * Show the form for creating a new resource.
      */
